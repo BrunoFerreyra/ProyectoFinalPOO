@@ -5,7 +5,7 @@ class Boton():
     def __init__(self, x, y, imagen, escala):
         ancho = imagen.get_width()
         alto = imagen.get_height()
-        self.imagen = pygame.transform.scale(imagen, (int(ancho*escala),(int(alto*escala))))
+        self.imagen = pygame.transform.scale(imagen,(int(ancho*escala),(int(alto*escala))))
         self.rect = self.imagen.get_rect()
         self.rect.topleft = (x,y)
         self.clickeado = False
