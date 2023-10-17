@@ -19,3 +19,11 @@ Tenemos el espacio para insertar luego el código del juego propiamente dicho.
 Se optimiza el código de menús (anteriormente, de un ciclo while, se entraba a otro ciclo while y luego a otro
 para cumplir con los objetivos, ahora se utiliza una serie de marcadores de estado de juego para saber a que porción de código entrar, para un mismo while).
 Al apretar el botón de musica_on se superponían las pistas. Se solucionó con marcadores de encendido, apagado.
+
+16/10/2023
+Se consigue realizar una clase juego, en donde se encuentra el constructor y los procedimientos necesarios para hacer correr el juego.
+El juego a estas alturas es temporal, se quieren cambiar algunos sprites.
+Cuenta con menú de inicio, de pausa y de game_over.
+Se conserva la utilización de marcadores para realizar tareas.
+En el archivo sprites.py se acumulan todas las clases y procedimientos que son necesarios para las interacciones del jugador con el medio en el que se encuentra, el próximo objetivo es dividir este archivo en más para mayor prolijidad y entendibilidad.
+En resumen, a estas alturas, tenemos la base de nuestro juego.
