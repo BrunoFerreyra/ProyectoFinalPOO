@@ -15,6 +15,7 @@ class Juego:
         
         self.plantilla_jugador = Plantilla_Sprites('imagenes/character.png')
         self.plantilla_terreno = Plantilla_Sprites('imagenes/terrain.png')
+        self.plantilla_arboles = Plantilla_Sprites('imagenes/arboles.png')
         self.plantilla_enemigo = Plantilla_Sprites('imagenes/enemy.png')
         self.plantilla_ataque = Plantilla_Sprites('imagenes/attack.png')
         self.intro_fondo = pygame.image.load('imagenes/introbackground.png')
@@ -56,6 +57,8 @@ class Juego:
                         Piso(self, j, i)
                     if columna == "A" and z == 2:
                         Arbol(self, j, i)
+                    if columna == "W" and z == 2:
+                        Agua(self, j, i)
                     if columna == "E" and z == 3:
                         Enemigo(self, j, i)
                     if columna == "J" and z == 3:
@@ -67,6 +70,7 @@ class Juego:
         self.pausado = False
         self.todos_sprites = pygame.sprite.LayeredUpdates() #contiene todos los sprites
         self.arboles = pygame.sprite.LayeredUpdates()
+        self.agua = pygame.sprite.LayeredUpdates()
         self.enemigos = pygame.sprite.LayeredUpdates()
         self.ataques = pygame.sprite.LayeredUpdates()
         

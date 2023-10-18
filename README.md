@@ -27,3 +27,6 @@ Cuenta con menú de inicio, de pausa y de game_over.
 Se conserva la utilización de marcadores para realizar tareas.
 En el archivo sprites.py se acumulan todas las clases y procedimientos que son necesarios para las interacciones del jugador con el medio en el que se encuentra, el próximo objetivo es dividir este archivo en más para mayor prolijidad y entendibilidad.
 En resumen, a estas alturas, tenemos la base de nuestro juego.
+
+18/10/2023
+Se agrega el sprite de agua y se acondiciona el mapa para que no aparezcan espacios negros.
