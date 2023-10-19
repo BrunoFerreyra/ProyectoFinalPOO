@@ -3,7 +3,13 @@ from sprites import *
 from constantes import *
 from boton import *
 import sys
-
+from Jugador  import *
+from ataque import *
+from enemigo import *
+from plantilla_sprites import *
+from agua import *
+from arbol import *
+from piso import *
 class Juego:
     def __init__(self):
         pygame.init() #inicia pygame
