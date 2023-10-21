@@ -1,15 +1,16 @@
 import pygame
-from sprites import *
+from pygame.sprite import LayeredUpdates
 from constantes import *
 from boton import *
 import sys
-from Jugador  import *
+from jugador  import *
 from ataque import *
 from enemigo import *
 from plantilla_sprites import *
 from agua import *
 from arbol import *
 from piso import *
+
 class Juego:
     def __init__(self):
         pygame.init() #inicia pygame
@@ -19,11 +20,7 @@ class Juego:
         self.corriendo = True
         self.tema_batalla_encendido = False
         
-        self.plantilla_jugador = Plantilla_Sprites('imagenes/character.png')
-        self.plantilla_terreno = Plantilla_Sprites('imagenes/terrain.png')
-        self.plantilla_arboles = Plantilla_Sprites('imagenes/arboles.png')
-        self.plantilla_enemigo = Plantilla_Sprites('imagenes/enemy.png')
-        self.plantilla_ataque = Plantilla_Sprites('imagenes/attack.png')
+        #Carga de imagenes de fondo
         self.intro_fondo = pygame.image.load('imagenes/introbackground.png')
         self.muerte_fondo = pygame.image.load('imagenes/gameover.png')
         
@@ -68,17 +65,16 @@ class Juego:
                     if columna == "E" and z == 3:
                         Enemigo(self, j, i)
                     if columna == "J" and z == 3:
-                        self.jugador = Jugador(self, j, i)
+                        self.jugador = Jugador(self, j, i, VIDA_INICIAL)
     
     def nuevo(self):
         #Comienza un nuevo juego
-        self.jugando = True #Verifica si el usuario esta jugando
+        self.jugando = True #Inicializa que el usuario esta jugando
         self.pausado = False
-        self.todos_sprites = pygame.sprite.LayeredUpdates() #contiene todos los sprites
-        self.arboles = pygame.sprite.LayeredUpdates()
-        self.agua = pygame.sprite.LayeredUpdates()
-        self.enemigos = pygame.sprite.LayeredUpdates()
-        self.ataques = pygame.sprite.LayeredUpdates()
+        self.todos_sprites = LayeredUpdates() #contiene todos los sprites
+        self.arboles = LayeredUpdates()
+        self.agua = LayeredUpdates()
+        self.enemigos = LayeredUpdates()
         
         self.crear_mapa()
     

@@ -2,14 +2,14 @@ import pygame
 from constantes import *
 import math
 import random
-
+from jugador import *
 
 class Enemigo(pygame.sprite.Sprite): #Clase en pygame para manejar sprites mas facilmente
     def __init__(self, juego, x, y): #x, y: coordenadas de lo que aparezca en pantalla
         self.juego = juego
-        #self.capa = CAPA_ENEMIGO #Las capas permiten dar un orden a los sprites
-        self.grupos = self.juego.todos_sprites, self.juego.enemigos
-        pygame.sprite.Sprite.__init__(self, self.grupos)
+        super().__init__(self.juego.todos_sprites, self.juego.enemigos)
+        
+        self.plantilla_enemigo = Plantilla_Sprites('imagenes/enemy.png')
         
         self.x = x * TAMANIO_MOSAICO
         self.y = y * TAMANIO_MOSAICO
@@ -20,7 +20,7 @@ class Enemigo(pygame.sprite.Sprite): #Clase en pygame para manejar sprites mas f
         self.y_cambio = 0
         
         
-        self.image = self.juego.plantilla_enemigo.get_plantilla(3, 2, self.ancho, self.alto)
+        self.image = self.plantilla_enemigo.get_plantilla(3, 2, self.ancho, self.alto)
         self.image.set_colorkey(NEGRO)
         
         self.rect = self.image.get_rect()
@@ -32,13 +32,13 @@ class Enemigo(pygame.sprite.Sprite): #Clase en pygame para manejar sprites mas f
         self.bucle_movimiento = 0
         self.viaje_maximo = random.randint(30, 50)
         
-        self.animaciones_izquierda = [self.juego.plantilla_enemigo.get_plantilla(3, 98, self.ancho, self.alto),
-                        self.juego.plantilla_enemigo.get_plantilla(35, 98, self.ancho, self.alto),
-                        self.juego.plantilla_enemigo.get_plantilla(68, 98, self.ancho, self.alto)]
+        self.animaciones_izquierda = [self.plantilla_enemigo.get_plantilla(3, 98, self.ancho, self.alto),
+                        self.plantilla_enemigo.get_plantilla(35, 98, self.ancho, self.alto),
+                        self.plantilla_enemigo.get_plantilla(68, 98, self.ancho, self.alto)]
 
-        self.animaciones_derecha = [self.juego.plantilla_enemigo.get_plantilla(3, 66, self.ancho, self.alto),
-                            self.juego.plantilla_enemigo.get_plantilla(35, 66, self.ancho, self.alto),
-                            self.juego.plantilla_enemigo.get_plantilla(68, 66, self.ancho, self.alto)]
+        self.animaciones_derecha = [self.plantilla_enemigo.get_plantilla(3, 66, self.ancho, self.alto),
+                            self.plantilla_enemigo.get_plantilla(35, 66, self.ancho, self.alto),
+                            self.plantilla_enemigo.get_plantilla(68, 66, self.ancho, self.alto)]
         
     def update(self):
         self.movimiento()
@@ -66,8 +66,8 @@ class Enemigo(pygame.sprite.Sprite): #Clase en pygame para manejar sprites mas f
         
         if self.direccion == "izquierda":
             if self.x_cambio == 0: #Si se queda parado
-                self.image = self.juego.plantilla_jugador.get_plantilla(3, 98, self.ancho, self.alto)
-            else: #Si se mueve hacia abajo
+                self.image = self.plantilla_enemigo.get_plantilla(3, 98, self.ancho, self.alto)
+            else:
                 self.image = self.animaciones_izquierda[math.floor(self.bucle_animacion)]
                 self.bucle_animacion += 0.1
                 if self.bucle_animacion >= 3:
@@ -75,7 +75,7 @@ class Enemigo(pygame.sprite.Sprite): #Clase en pygame para manejar sprites mas f
         
         if self.direccion == "derecha":
             if self.x_cambio == 0: #Si se queda parado
-                self.image = self.juego.plantilla_jugador.get_plantilla(3, 66, self.ancho, self.alto)
+                self.image = self.plantilla_enemigo.get_plantilla(3, 66, self.ancho, self.alto)
             else: #Si se mueve hacia abajo
                 self.image = self.animaciones_derecha[math.floor(self.bucle_animacion)]
                 self.bucle_animacion += 0.1

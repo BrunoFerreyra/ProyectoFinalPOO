@@ -30,3 +30,8 @@ En resumen, a estas alturas, tenemos la base de nuestro juego.
 
 18/10/2023
 Se agrega el sprite de agua y se acondiciona el mapa para que no aparezcan espacios negros.
+
+21/10/2023
+La carga de sprites se realiza en las clases correspondientes.
+Se utiliza super() en cada clase para heredar de pygame.sprite.Sprites.
+Problema: la carga de sprites en las clases correspondientes ralentizó en demasía al juego.

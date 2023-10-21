@@ -1,13 +1,19 @@
 import pygame
 from constantes import *
 import math
+from plantilla_sprites import *
 import random
+
 class Jugador(pygame.sprite.Sprite): #Clase en pygame para manejar sprites mas facilmente
-    def __init__(self, juego, x, y): #x, y: coordenadas de lo que aparezca en pantalla
+    def __init__(self,juego, x, y, vida): #x, y: coordenadas de lo que aparezca en pantalla
         self.juego = juego
+        super().__init__(self.juego.todos_sprites)
+        
+        self.vida = vida
+        self.plantilla_jugador = Plantilla_Sprites('imagenes/character.png')
         #self.capa = CAPA_JUGADOR #Las capas permiten dar un orden a los sprites
-        self.grupos = self.juego.todos_sprites
-        pygame.sprite.Sprite.__init__(self, self.grupos)
+        #self.grupos = self.juego.todos_sprites
+        #pygame.sprite.Sprite.__init__(self, self.grupos)
         
         self.x = x * TAMANIO_MOSAICO
         self.y = y * TAMANIO_MOSAICO
@@ -20,7 +26,7 @@ class Jugador(pygame.sprite.Sprite): #Clase en pygame para manejar sprites mas f
         self.direccion = 'abajo' #Sirve para saber en que direccion mira el personaje
         self.bucle_animacion = 1
         
-        self.image = self.juego.plantilla_jugador.get_plantilla(3, 2, self.ancho, self.alto)
+        self.image = self.plantilla_jugador.get_plantilla(3, 2, self.ancho, self.alto)
         
         self.rect = self.image.get_rect()
         self.rect.x = self.x
@@ -39,21 +45,21 @@ class Jugador(pygame.sprite.Sprite): #Clase en pygame para manejar sprites mas f
         self.x_cambio = 0
         self.y_cambio = 0
     
-        self.animaciones_bajar = [self.juego.plantilla_jugador.get_plantilla(3, 2, self.ancho, self.alto),
-                        self.juego.plantilla_jugador.get_plantilla(35, 2, self.ancho, self.alto),
-                        self.juego.plantilla_jugador.get_plantilla(68, 2, self.ancho, self.alto)]
+        self.animaciones_bajar = [self.plantilla_jugador.get_plantilla(3, 2, self.ancho, self.alto),
+                        self.plantilla_jugador.get_plantilla(35, 2, self.ancho, self.alto),
+                        self.plantilla_jugador.get_plantilla(68, 2, self.ancho, self.alto)]
 
-        self.animaciones_subir = [self.juego.plantilla_jugador.get_plantilla(3, 34, self.ancho, self.alto),
-                        self.juego.plantilla_jugador.get_plantilla(35, 34, self.ancho, self.alto),
-                        self.juego.plantilla_jugador.get_plantilla(68, 34, self.ancho, self.alto)]
+        self.animaciones_subir = [self.plantilla_jugador.get_plantilla(3, 34, self.ancho, self.alto),
+                        self.plantilla_jugador.get_plantilla(35, 34, self.ancho, self.alto),
+                        self.plantilla_jugador.get_plantilla(68, 34, self.ancho, self.alto)]
 
-        self.animaciones_izquierda = [self.juego.plantilla_jugador.get_plantilla(3, 98, self.ancho, self.alto),
-                        self.juego.plantilla_jugador.get_plantilla(35, 98, self.ancho, self.alto),
-                        self.juego.plantilla_jugador.get_plantilla(68, 98, self.ancho, self.alto)]
+        self.animaciones_izquierda = [self.plantilla_jugador.get_plantilla(3, 98, self.ancho, self.alto),
+                        self.plantilla_jugador.get_plantilla(35, 98, self.ancho, self.alto),
+                        self.plantilla_jugador.get_plantilla(68, 98, self.ancho, self.alto)]
 
-        self.animaciones_derecha = [self.juego.plantilla_jugador.get_plantilla(3, 66, self.ancho, self.alto),
-                            self.juego.plantilla_jugador.get_plantilla(35, 66, self.ancho, self.alto),
-                            self.juego.plantilla_jugador.get_plantilla(68, 66, self.ancho, self.alto)]
+        self.animaciones_derecha = [self.plantilla_jugador.get_plantilla(3, 66, self.ancho, self.alto),
+                            self.plantilla_jugador.get_plantilla(35, 66, self.ancho, self.alto),
+                            self.plantilla_jugador.get_plantilla(68, 66, self.ancho, self.alto)]
     
     def movimiento(self):
         teclas = pygame.key.get_pressed()#Lista de todas las teclas que pueden ser apretadas
@@ -113,7 +119,7 @@ class Jugador(pygame.sprite.Sprite): #Clase en pygame para manejar sprites mas f
         
         if self.direccion == "abajo":
             if self.y_cambio == 0: #Si se queda parado
-                self.image = self.juego.plantilla_jugador.get_plantilla(3, 2, self.ancho, self.alto)
+                self.image = self.plantilla_jugador.get_plantilla(3, 2, self.ancho, self.alto)
             else: #Si se mueve hacia abajo
                 self.image = self.animaciones_bajar[math.floor(self.bucle_animacion)]
                 self.bucle_animacion += 0.1
@@ -122,7 +128,7 @@ class Jugador(pygame.sprite.Sprite): #Clase en pygame para manejar sprites mas f
         
         if self.direccion == "arriba":
             if self.y_cambio == 0: #Si se queda parado
-                self.image = self.juego.plantilla_jugador.get_plantilla(3, 34, self.ancho, self.alto)
+                self.image = self.plantilla_jugador.get_plantilla(3, 34, self.ancho, self.alto)
             else: #Si se mueve hacia abajo
                 self.image = self.animaciones_subir[math.floor(self.bucle_animacion)]
                 self.bucle_animacion += 0.1
@@ -131,7 +137,7 @@ class Jugador(pygame.sprite.Sprite): #Clase en pygame para manejar sprites mas f
         
         if self.direccion == "izquierda":
             if self.x_cambio == 0: #Si se queda parado
-                self.image = self.juego.plantilla_jugador.get_plantilla(3, 98, self.ancho, self.alto)
+                self.image = self.plantilla_jugador.get_plantilla(3, 98, self.ancho, self.alto)
             else: #Si se mueve hacia abajo
                 self.image = self.animaciones_izquierda[math.floor(self.bucle_animacion)]
                 self.bucle_animacion += 0.1
@@ -140,7 +146,7 @@ class Jugador(pygame.sprite.Sprite): #Clase en pygame para manejar sprites mas f
         
         if self.direccion == "derecha":
             if self.x_cambio == 0: #Si se queda parado
-                self.image = self.juego.plantilla_jugador.get_plantilla(3, 66, self.ancho, self.alto)
+                self.image = self.plantilla_jugador.get_plantilla(3, 66, self.ancho, self.alto)
             else: #Si se mueve hacia abajo
                 self.image = self.animaciones_derecha[math.floor(self.bucle_animacion)]
                 self.bucle_animacion += 0.1
