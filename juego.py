@@ -464,7 +464,7 @@ class Enemigo(pygame.sprite.Sprite):
             self.rect.x = self.x
             self.rect.y = self.y
             self.proyectil_x = self.rect.centerx
-            self.proyectil_y = self.rect.bottom
+            self.proyectil_y = self.rect.bottom - 20
             self.proyectil = Proyectil(self.proyectil_x, self.proyectil_y, self.plantilla_roca)
         
         if self.direccion == '4':
@@ -481,7 +481,7 @@ class Enemigo(pygame.sprite.Sprite):
             self.rect = self.image.get_rect()
             self.rect.x = self.x
             self.rect.y = self.y
-            self.proyectil_x = self.rect.right
+            self.proyectil_x = self.rect.right-20
             self.proyectil_y = self.rect.centery
             self.proyectil = Proyectil(self.proyectil_x, self.proyectil_y, self.plantilla_roca)
         
@@ -582,24 +582,6 @@ class Enemigo(pygame.sprite.Sprite):
     def update(self):
         self.animacion()
         self.crear_roca()
-    
-    def disparar(self, screen, tiempo_actual):
-        if self.direccion == '2':
-            if tiempo_actual - self.ultimo_disparo >= self.intervalo_disparo:
-                pygame.draw.circle(screen, ROJO, (self.proyectil_x, self.proyectil_y), 5)
-                self.ultimo_disparo = 0
-        if self.direccion == '4':
-            if tiempo_actual - self.ultimo_disparo >= self.intervalo_disparo:
-                pygame.draw.circle(screen, ROJO, (self.proyectil_x, self.proyectil_y), 5)
-                self.ultimo_disparo = 0
-        if self.direccion == '6':
-            if tiempo_actual - self.ultimo_disparo >= self.intervalo_disparo:
-                pygame.draw.circle(screen, ROJO, (self.proyectil_x, self.proyectil_y), 5)
-                self.ultimo_disparo = 0
-        if self.direccion == '8':
-            if tiempo_actual - self.ultimo_disparo >= self.intervalo_disparo:
-                pygame.draw.circle(screen, ROJO, (self.proyectil_x, self.proyectil_y), 5)
-                self.ultimo_disparo = 0
 
 class Proyectil (pygame.sprite.Sprite):
     def __init__ (self, x, y, plantilla):
