@@ -35,3 +35,6 @@ Se agrega el sprite de agua y se acondiciona el mapa para que no aparezcan espac
 La carga de sprites se realiza en las clases correspondientes.
 Se utiliza super() en cada clase para heredar de pygame.sprite.Sprites.
 Problema: la carga de sprites en las clases correspondientes ralentizó en demasía al juego.
+
+29/10/2023
+Se deja el juego listo para 1er control.
