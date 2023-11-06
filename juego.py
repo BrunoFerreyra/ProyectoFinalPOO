@@ -251,25 +251,25 @@ class Jugador(pygame.sprite.Sprite):
     def acciones(self):
         teclas = pygame.key.get_pressed()
         
-        if teclas[pygame.K_LEFT]:
+        if teclas[pygame.K_LEFT] or teclas[pygame.K_a]:
             self.direccion = "izquierda"
             if self.colision_agua():
                 self.x_cambio -= VELOCIDAD_REDUCIDA
             else:
                 self.x_cambio -= VELOCIDAD_JUGADOR
-        if teclas[pygame.K_RIGHT]:
+        if teclas[pygame.K_RIGHT] or teclas[pygame.K_d]:
             self.direccion = "derecha"
             if self.colision_agua():
                 self.x_cambio += VELOCIDAD_REDUCIDA
             else:
                 self.x_cambio += VELOCIDAD_JUGADOR
-        if teclas[pygame.K_UP]:
+        if teclas[pygame.K_UP] or teclas[pygame.K_w]:
             self.direccion = "arriba"
             if self.colision_agua():
                 self.y_cambio -= VELOCIDAD_REDUCIDA
             else:
                 self.y_cambio -= VELOCIDAD_JUGADOR
-        if teclas[pygame.K_DOWN]:
+        if teclas[pygame.K_DOWN] or teclas[pygame.K_s]:
             self.direccion = "abajo" 
             if self.colision_agua():
                 self.y_cambio += VELOCIDAD_REDUCIDA
@@ -594,8 +594,10 @@ class Proyectil (pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
-class Arbol(pygame.sprite.Sprite):
-    def __init__(self, x, y, plantilla):
+
+
+class Terreno(pygame.sprite.Sprite):
+    def __init__(self, x, y, plantilla, plantilla_x, plantilla_y):
         super().__init__()
         
         self.x = x * TAMANIO_MOSAICO
@@ -603,38 +605,20 @@ class Arbol(pygame.sprite.Sprite):
         self.ancho = TAMANIO_MOSAICO 
         self.alto = TAMANIO_MOSAICO
         
-        self.plantilla_arboles = plantilla
-        self.image = self.plantilla_arboles.get_plantilla(102, 49, self.ancho, self.alto)
+        self.plantilla_terreno = plantilla
+        self.image = self.plantilla_terreno.get_plantilla(plantilla_x, plantilla_y, self.ancho, self.alto)
         self.rect = self.image.get_rect()
         self.rect.x = self.x
         self.rect.y = self.y
 
-class Piso(pygame.sprite.Sprite):
+class Arbol(Terreno):
     def __init__(self, x, y, plantilla):
-        super().__init__()
-        
-        self.x = x * TAMANIO_MOSAICO
-        self.y = y * TAMANIO_MOSAICO
-        self.ancho = TAMANIO_MOSAICO 
-        self.alto = TAMANIO_MOSAICO        
-        
-        self.plantilla_terreno = plantilla
-        self.image = self.plantilla_terreno.get_plantilla(65, 352, self.ancho, self.alto)
-        self.rect = self.image.get_rect()
-        self.rect.x = self.x
-        self.rect.y = self.y
+        super().__init__(x, y, plantilla, 102, 49)
 
-class Agua(pygame.sprite.Sprite):
-    def __init__(self, x, y,plantilla):
-        super().__init__()
-        
-        self.x = x * TAMANIO_MOSAICO
-        self.y = y * TAMANIO_MOSAICO
-        self.ancho = TAMANIO_MOSAICO 
-        self.alto = TAMANIO_MOSAICO        
-        
-        self.plantilla_terreno = plantilla
-        self.image = self.plantilla_terreno.get_plantilla(900, 160, self.ancho, self.alto)
-        self.rect = self.image.get_rect()
-        self.rect.x = self.x
-        self.rect.y = self.y
+class Piso(Terreno):
+    def __init__(self, x, y, plantilla):
+        super().__init__(x, y, plantilla, 65,352)
+
+class Agua(Terreno):
+    def __init__(self, x, y, plantilla):
+        super().__init__(x, y, plantilla, 900, 160)
