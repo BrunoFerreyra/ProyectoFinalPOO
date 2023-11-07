@@ -209,7 +209,7 @@ class Jugador(pygame.sprite.Sprite):
         self.termina_juego = False
     
     def game_over(self):
-        if self.vida < 0 or not self.enemigo:
+        if self.vida < 1 or not self.enemigo:
             self.termina_juego = True
             
     def get_vida(self):
@@ -316,6 +316,7 @@ class Jugador(pygame.sprite.Sprite):
                                 self.rect.y = arbol.rect.top - self.rect.height
                             if self.y_cambio < 0:
                                 self.rect.y = arbol.rect.bottom
+    
     def animacion(self):
         if self.direccion == "abajo":
             if self.y_cambio == 0: #Si se queda parado
