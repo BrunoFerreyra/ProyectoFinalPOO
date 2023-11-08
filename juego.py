@@ -3,7 +3,7 @@ from plantilla_sprites import Plantilla_Sprites
 from constantes import *
 from boton import Boton
 import math
-
+from mapa import *
 class Juego:
     def __init__(self):
         pygame.display.set_caption("Adventure Time")
