@@ -4,7 +4,14 @@ from constantes import *
 from boton import Boton
 import math
 from mapa import *
+
 class Juego:
+    _instance = None
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(Juego, cls).__new__(cls)
+        return cls._instance
+    
     def __init__(self):
         pygame.display.set_caption("Adventure Time")
         self.screen = pygame.display.set_mode((PANTALLA_ANCHO, PANTALLA_ALTO))
@@ -158,7 +165,6 @@ class Camera:
         y = min(0, y)
         self.camera = pygame.Rect(x, y, self.camera.width, self.camera.height)
 
-
 class cuadro(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
@@ -166,7 +172,6 @@ class cuadro(pygame.sprite.Sprite):
         self.y = y * TAMANIO_MOSAICO
         self.ancho = TAMANIO_MOSAICO 
         self.alto = TAMANIO_MOSAICO
-        
 
 class Jugador(cuadro):
     def __init__(self, x, y, plantilla, plantilla_corazones, plantilla_ataque, arboles, agua, enemigo, vida):
@@ -597,7 +602,6 @@ class Proyectil (pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-
 
 class Terreno(cuadro):
     def __init__(self, x, y, plantilla, plantilla_x, plantilla_y):
