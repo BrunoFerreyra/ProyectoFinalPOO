@@ -43,7 +43,7 @@ class Intro():
             self.screen.blit(self.fondo_img, (movimiento_fondo_relativo - self.fondo_img.get_rect().width,0))
             if movimiento_fondo_relativo < PANTALLA_ANCHO:
                 self.screen.blit(self.fondo_img, (movimiento_fondo_relativo, 0))
-            movimiento_fondo -= 1.5
+            movimiento_fondo -= 0.5
             
             #Título del juego
             self.screen.blit(self.titulo_img, [50, -70])

@@ -158,18 +158,24 @@ class Camera:
         y = min(0, y)
         self.camera = pygame.Rect(x, y, self.camera.width, self.camera.height)
 
-class Jugador(pygame.sprite.Sprite):
-    def __init__(self, x, y, plantilla, plantilla_corazones, plantilla_ataque, arboles, agua, enemigo, vida):
+
+class cuadro(pygame.sprite.Sprite):
+    def __init__(self, x, y):
         super().__init__()
+        self.x = x * TAMANIO_MOSAICO
+        self.y = y * TAMANIO_MOSAICO
+        self.ancho = TAMANIO_MOSAICO 
+        self.alto = TAMANIO_MOSAICO
+        
+
+class Jugador(cuadro):
+    def __init__(self, x, y, plantilla, plantilla_corazones, plantilla_ataque, arboles, agua, enemigo, vida):
+        super().__init__(x,y)
         self.vida = vida
         self.plantilla_corazones = plantilla_corazones
         self.image_corazones = self.plantilla_corazones.get_plantilla(15,4,101,31)
         self.plantilla_ataque = plantilla_ataque
         
-        self.x = x * TAMANIO_MOSAICO
-        self.y = y * TAMANIO_MOSAICO
-        self.ancho = TAMANIO_MOSAICO 
-        self.alto = TAMANIO_MOSAICO
         
         self.plantilla_jugador = plantilla
         self.image = plantilla.get_plantilla(3, 2, self.ancho, self.alto)
@@ -424,13 +430,10 @@ class Ataque(pygame.sprite.Sprite):
                 self.image = self.animaciones_derecha[0]
                 self.bucle_animacion = 0
 
-class Enemigo(pygame.sprite.Sprite):
+class Enemigo(cuadro):
     def __init__(self, x, y, plantilla, plantilla_roca, direccion):
-        super().__init__()
-        self.x = x * TAMANIO_MOSAICO
-        self.y = y * TAMANIO_MOSAICO
-        self.ancho = TAMANIO_MOSAICO 
-        self.alto = TAMANIO_MOSAICO
+        super().__init__(x,y)
+        
         
         self.plantilla_enemigo = plantilla
         self.direccion = direccion
@@ -596,15 +599,9 @@ class Proyectil (pygame.sprite.Sprite):
         self.rect.y = y
 
 
-
-class Terreno(pygame.sprite.Sprite):
+class Terreno(cuadro):
     def __init__(self, x, y, plantilla, plantilla_x, plantilla_y):
-        super().__init__()
-        
-        self.x = x * TAMANIO_MOSAICO
-        self.y = y * TAMANIO_MOSAICO
-        self.ancho = TAMANIO_MOSAICO 
-        self.alto = TAMANIO_MOSAICO
+        super().__init__(x, y)
         
         self.plantilla_terreno = plantilla
         self.image = self.plantilla_terreno.get_plantilla(plantilla_x, plantilla_y, self.ancho, self.alto)
