@@ -5,13 +5,16 @@ from boton import Boton
 import math
 from mapa import *
 
+
 class Juego:
+    
     _instance = None
+
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(Juego, cls).__new__(cls)
         return cls._instance
-    
+
     def __init__(self):
         pygame.display.set_caption("Adventure Time")
         self.screen = pygame.display.set_mode((PANTALLA_ANCHO, PANTALLA_ALTO))
@@ -101,7 +104,7 @@ class Juego:
         self.cargar_elementos()
         for enemigo in self.enemigo:
             enemigo.carga_datos()
-        self.jugador = Jugador(1, 1, self.plantilla_jugador, self.plantilla_corazones, self.plantilla_ataque, self.arboles, self.agua, self.enemigo, VIDA_INICIAL)
+        self.jugador = Jugador(1, 1, self.plantilla_jugador, self.plantilla_corazones, self.plantilla_ataque, self.arboles, self.agua, self.enemigo, VIDA_INICIAL,0)
         self.battle_theme.play(-1)
 
     def vaciar(self):
@@ -165,52 +168,55 @@ class Camera:
         y = min(0, y)
         self.camera = pygame.Rect(x, y, self.camera.width, self.camera.height)
 
-class cuadro(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+class Personaje(pygame.sprite.Sprite):
+    def __init__(self, x, y, plantilla,direccion):
         super().__init__()
+
         self.x = x * TAMANIO_MOSAICO
         self.y = y * TAMANIO_MOSAICO
         self.ancho = TAMANIO_MOSAICO 
         self.alto = TAMANIO_MOSAICO
+        
+        self.plantilla_personaje = plantilla
+        self.image = self.plantilla_personaje.get_plantilla(3, 2, self.ancho, self.alto)
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+        self.direccion = direccion
+        self.bucle_animacion = 1
+        
+        #Las animaciones de movimiento las clases jugador tanto como enemigo las utilizan
+        #Jugador para la animacion del ataque y enemigo para la animacion de las
+        #rocas
+        self.animaciones_bajar = [self.plantilla_personaje.get_plantilla(3, 2, self.ancho, self.alto),
+                        self.plantilla_personaje.get_plantilla(35, 2, self.ancho, self.alto),
+                        self.plantilla_personaje.get_plantilla(68, 2, self.ancho, self.alto)]
 
-class Jugador(cuadro):
-    def __init__(self, x, y, plantilla, plantilla_corazones, plantilla_ataque, arboles, agua, enemigo, vida):
-        super().__init__(x,y)
+        self.animaciones_subir = [self.plantilla_personaje.get_plantilla(3, 34, self.ancho, self.alto),
+                        self.plantilla_personaje.get_plantilla(35, 34, self.ancho, self.alto),
+                        self.plantilla_personaje.get_plantilla(68, 34, self.ancho, self.alto)]
+
+        self.animaciones_izquierda = [self.plantilla_personaje.get_plantilla(3, 98, self.ancho, self.alto),
+                        self.plantilla_personaje.get_plantilla(35, 98, self.ancho, self.alto),
+                        self.plantilla_personaje.get_plantilla(68, 98, self.ancho, self.alto)]
+
+        self.animaciones_derecha = [self.plantilla_personaje.get_plantilla(3, 66, self.ancho, self.alto),
+                            self.plantilla_personaje.get_plantilla(35, 66, self.ancho, self.alto),
+                            self.plantilla_personaje.get_plantilla(68, 66, self.ancho, self.alto)]
+
+
+class Jugador(Personaje):
+    def __init__(self, x, y, plantilla, plantilla_corazones, plantilla_ataque, arboles, agua, enemigo, vida,direccion):
+        super().__init__(x, y, plantilla,direccion)
         self.vida = vida
         self.plantilla_corazones = plantilla_corazones
         self.image_corazones = self.plantilla_corazones.get_plantilla(15,4,101,31)
         self.plantilla_ataque = plantilla_ataque
         
-        
-        self.plantilla_jugador = plantilla
-        self.image = plantilla.get_plantilla(3, 2, self.ancho, self.alto)
-        self.rect = self.image.get_rect()
-        self.rect.x = self.x
-        self.rect.y = self.y
         self.proyectiles_colisionados = set()
-        
         self.x_cambio = 0
         self.y_cambio = 0
-        
-        self.direccion = "abajo"
-        self.bucle_animacion = 1
-        
-        self.animaciones_bajar = [self.plantilla_jugador.get_plantilla(3, 2, self.ancho, self.alto),
-                        self.plantilla_jugador.get_plantilla(35, 2, self.ancho, self.alto),
-                        self.plantilla_jugador.get_plantilla(68, 2, self.ancho, self.alto)]
-
-        self.animaciones_subir = [self.plantilla_jugador.get_plantilla(3, 34, self.ancho, self.alto),
-                        self.plantilla_jugador.get_plantilla(35, 34, self.ancho, self.alto),
-                        self.plantilla_jugador.get_plantilla(68, 34, self.ancho, self.alto)]
-
-        self.animaciones_izquierda = [self.plantilla_jugador.get_plantilla(3, 98, self.ancho, self.alto),
-                        self.plantilla_jugador.get_plantilla(35, 98, self.ancho, self.alto),
-                        self.plantilla_jugador.get_plantilla(68, 98, self.ancho, self.alto)]
-
-        self.animaciones_derecha = [self.plantilla_jugador.get_plantilla(3, 66, self.ancho, self.alto),
-                            self.plantilla_jugador.get_plantilla(35, 66, self.ancho, self.alto),
-                            self.plantilla_jugador.get_plantilla(68, 66, self.ancho, self.alto)]
-        
+    
         self.enemigo = enemigo
         self.arboles = arboles
         self.agua = agua
@@ -220,7 +226,7 @@ class Jugador(cuadro):
         self.termina_juego = False
     
     def game_over(self):
-        if self.vida < 1 or not self.enemigo:
+        if self.vida < 0 or not self.enemigo:
             self.termina_juego = True
             
     def get_vida(self):
@@ -327,11 +333,11 @@ class Jugador(cuadro):
                                 self.rect.y = arbol.rect.top - self.rect.height
                             if self.y_cambio < 0:
                                 self.rect.y = arbol.rect.bottom
-    
+                                
     def animacion(self):
         if self.direccion == "abajo":
             if self.y_cambio == 0: #Si se queda parado
-                self.image = self.plantilla_jugador.get_plantilla(3, 2, self.ancho, self.alto)
+                self.image = self.plantilla_personaje.get_plantilla(3, 2, self.ancho, self.alto)
             else: #Si se mueve hacia abajo
                 self.image = self.animaciones_bajar[math.floor(self.bucle_animacion)]
                 self.bucle_animacion += 0.1
@@ -340,7 +346,7 @@ class Jugador(cuadro):
         
         if self.direccion == "arriba":
             if self.y_cambio == 0: #Si se queda parado
-                self.image = self.plantilla_jugador.get_plantilla(3, 34, self.ancho, self.alto)
+                self.image = self.plantilla_personaje.get_plantilla(3, 34, self.ancho, self.alto)
             else: #Si se mueve
                 self.image = self.animaciones_subir[math.floor(self.bucle_animacion)]
                 self.bucle_animacion += 0.1
@@ -349,7 +355,7 @@ class Jugador(cuadro):
         
         if self.direccion == "izquierda":
             if self.x_cambio == 0: #Si se queda parado
-                self.image = self.plantilla_jugador.get_plantilla(3, 98, self.ancho, self.alto)
+                self.image = self.plantilla_personaje.get_plantilla(3, 98, self.ancho, self.alto)
             else: #Si se mueve
                 self.image = self.animaciones_izquierda[math.floor(self.bucle_animacion)]
                 self.bucle_animacion += 0.1
@@ -358,12 +364,155 @@ class Jugador(cuadro):
         
         if self.direccion == "derecha":
             if self.x_cambio == 0: #Si se queda parado
-                self.image = self.plantilla_jugador.get_plantilla(3, 66, self.ancho, self.alto)
+                self.image = self.plantilla_personaje.get_plantilla(3, 66, self.ancho, self.alto)
             else: #Si se mueve
                 self.image = self.animaciones_derecha[math.floor(self.bucle_animacion)]
                 self.bucle_animacion += 0.1
                 if self.bucle_animacion >= 3:
                     self.bucle_animacion = 1
+
+
+
+class Enemigo(Personaje):
+    def __init__(self, x, y, plantilla, plantilla_roca,direccion):
+        super().__init__(x, y, plantilla,direccion)
+        
+        self.plantilla_roca = plantilla_roca
+        self.proyectil = None
+        self.proyectil_x = None
+        self.proyectil_y = None
+        self.arrojando = False
+        self.cont = 0
+        
+
+    
+    def carga_datos(self):
+        if self.direccion == '2':
+            self.image = self.plantilla_personaje.get_plantilla(3, 2, self.ancho, self.alto)
+            self.rect = self.image.get_rect()
+            self.rect.x = self.x
+            self.rect.y = self.y
+            self.proyectil_x = self.rect.centerx
+            self.proyectil_y = self.rect.bottom - 20
+            self.proyectil = Proyectil(self.proyectil_x, self.proyectil_y, self.plantilla_roca)
+        
+        if self.direccion == '4':
+            self.image = self.plantilla_personaje.get_plantilla(3, 99, self.ancho, self.alto)
+            self.rect = self.image.get_rect()
+            self.rect.x = self.x
+            self.rect.y = self.y
+            self.proyectil_x = self.rect.left
+            self.proyectil_y = self.rect.centery
+            self.proyectil = Proyectil(self.proyectil_x, self.proyectil_y, self.plantilla_roca)
+            
+        if self.direccion == '6':
+            self.image = self.plantilla_personaje.get_plantilla(3, 67, self.ancho, self.alto)
+            self.rect = self.image.get_rect()
+            self.rect.x = self.x
+            self.rect.y = self.y
+            self.proyectil_x = self.rect.right-20
+            self.proyectil_y = self.rect.centery
+            self.proyectil = Proyectil(self.proyectil_x, self.proyectil_y, self.plantilla_roca)
+        
+        if self.direccion == '8':
+            self.image = self.plantilla_personaje.get_plantilla(3, 35, self.ancho, self.alto)
+            self.rect = self.image.get_rect()
+            self.rect.x = self.x
+            self.rect.y = self.y
+            self.proyectil_x = self.rect.centerx
+            self.proyectil_y = self.rect.top
+            self.proyectil = Proyectil(self.proyectil_x, self.proyectil_y, self.plantilla_roca)
+    
+    def animacion(self):
+        if self.direccion == '2':
+            self.image = self.animaciones_bajar[0]
+            self.bucle_animacion += 0.01
+            if self.bucle_animacion > 1:
+                self.image = self.animaciones_bajar[1]
+                if self.bucle_animacion > 1.1:
+                    self.bucle_animacion = 0
+        
+        if self.direccion == '4':
+            self.image = self.animaciones_izquierda[0]
+            self.bucle_animacion += 0.01
+            if self.bucle_animacion > 1:
+                self.image = self.animaciones_izquierda[1]
+                if self.bucle_animacion > 1.1:
+                    self.bucle_animacion = 0
+        
+        if self.direccion == '6':
+            self.image = self.animaciones_derecha[0]
+            self.bucle_animacion += 0.01
+            if self.bucle_animacion > 1:
+                self.image = self.animaciones_derecha[1]
+                if self.bucle_animacion > 1.1:
+                    self.bucle_animacion = 0
+        
+        if self.direccion == '8':
+            self.image = self.animaciones_subir[0]
+            self.bucle_animacion += 0.01
+            if self.bucle_animacion > 1:
+                self.image = self.animaciones_subir[1]
+                if self.bucle_animacion > 1.1:
+                    self.bucle_animacion = 0
+                    
+    def crear_roca(self):
+        if self.direccion == '2':
+            if self.bucle_animacion > 1 and not self.arrojando:
+                self.arrojando = True
+            
+            if self.arrojando:
+                self.proyectil.rect.y += VELOCIDAD_DISPARO
+                self.cont += 1
+                if self.cont == 50:
+                    self.proyectil = Proyectil(self.proyectil_x, self.proyectil_y, self.plantilla_roca)
+                    self.proyectil.rect.y = self.proyectil_y
+                    self.cont = 0
+                    self.arrojando = False
+        
+        if self.direccion == '4':
+            if self.bucle_animacion > 1 and not self.arrojando:
+                self.arrojando = True
+            
+            if self.arrojando:
+                self.proyectil.rect.x -= VELOCIDAD_DISPARO
+                self.cont += 1
+                if self.cont == 50:
+                    self.proyectil = Proyectil(self.proyectil_x, self.proyectil_y, self.plantilla_roca)
+                    self.proyectil.rect.x = self.proyectil_x
+                    self.cont = 0
+                    self.arrojando = False
+        
+        if self.direccion == '8':
+            if self.bucle_animacion > 1 and not self.arrojando:
+                self.arrojando = True
+            
+            if self.arrojando:
+                self.proyectil.rect.y -= VELOCIDAD_DISPARO
+                self.cont += 1
+                if self.cont == 50:
+                    self.proyectil = Proyectil(self.proyectil_x, self.proyectil_y, self.plantilla_roca)
+                    self.proyectil.rect.y = self.proyectil_y
+                    self.cont = 0
+                    self.arrojando = False
+        
+        if self.direccion == '6':
+            if self.bucle_animacion > 1 and not self.arrojando:
+                self.arrojando = True
+            
+            if self.arrojando:
+                self.proyectil.rect.x += VELOCIDAD_DISPARO
+                self.cont += 1
+                if self.cont == 50:
+                    self.proyectil = Proyectil(self.proyectil_x, self.proyectil_y, self.plantilla_roca)
+                    self.proyectil.rect.x = self.proyectil_x
+                    self.cont = 0
+                    self.arrojando = False
+                    
+    def update(self):
+        self.animacion()
+        self.crear_roca()
+
 
 class Ataque(pygame.sprite.Sprite):
     def __init__(self, x, y, plantilla):
@@ -434,164 +583,7 @@ class Ataque(pygame.sprite.Sprite):
             if self.bucle_animacion >= 5:
                 self.image = self.animaciones_derecha[0]
                 self.bucle_animacion = 0
-
-class Enemigo(cuadro):
-    def __init__(self, x, y, plantilla, plantilla_roca, direccion):
-        super().__init__(x,y)
-        
-        
-        self.plantilla_enemigo = plantilla
-        self.direccion = direccion
-        self.image = None
-        self.rect = None
-        
-        self.plantilla_roca = plantilla_roca
-        self.proyectil = None
-        self.proyectil_x = None
-        self.proyectil_y = None
-        self.arrojando = False
-        self.cont = 0
-        
-        self.bucle_animacion = 0
-        
-        self.animaciones_abajo = [self.plantilla_enemigo.get_plantilla(3, 2, self.ancho, self.alto),
-                                self.plantilla_enemigo.get_plantilla(68, 2, self.ancho, self.alto)]
-        
-        self.animaciones_arriba = [self.plantilla_enemigo.get_plantilla(3, 34, self.ancho, self.alto),
-                        self.plantilla_enemigo.get_plantilla(68, 34, self.ancho, self.alto)]
-
-        self.animaciones_izquierda = [self.plantilla_enemigo.get_plantilla(3, 98, self.ancho, self.alto),
-                        self.plantilla_enemigo.get_plantilla(68, 98, self.ancho, self.alto)]
-
-        self.animaciones_derecha = [self.plantilla_enemigo.get_plantilla(3, 66, self.ancho, self.alto),
-                            self.plantilla_enemigo.get_plantilla(68, 66, self.ancho, self.alto)]
-    
-    def carga_datos(self):
-        if self.direccion == '2':
-            self.image = self.plantilla_enemigo.get_plantilla(3, 2, self.ancho, self.alto)
-            self.rect = self.image.get_rect()
-            self.rect.x = self.x
-            self.rect.y = self.y
-            self.proyectil_x = self.rect.centerx
-            self.proyectil_y = self.rect.bottom - 20
-            self.proyectil = Proyectil(self.proyectil_x, self.proyectil_y, self.plantilla_roca)
-        
-        if self.direccion == '4':
-            self.image = self.plantilla_enemigo.get_plantilla(3, 99, self.ancho, self.alto)
-            self.rect = self.image.get_rect()
-            self.rect.x = self.x
-            self.rect.y = self.y
-            self.proyectil_x = self.rect.left
-            self.proyectil_y = self.rect.centery
-            self.proyectil = Proyectil(self.proyectil_x, self.proyectil_y, self.plantilla_roca)
-            
-        if self.direccion == '6':
-            self.image = self.plantilla_enemigo.get_plantilla(3, 67, self.ancho, self.alto)
-            self.rect = self.image.get_rect()
-            self.rect.x = self.x
-            self.rect.y = self.y
-            self.proyectil_x = self.rect.right-20
-            self.proyectil_y = self.rect.centery
-            self.proyectil = Proyectil(self.proyectil_x, self.proyectil_y, self.plantilla_roca)
-        
-        if self.direccion == '8':
-            self.image = self.plantilla_enemigo.get_plantilla(3, 35, self.ancho, self.alto)
-            self.rect = self.image.get_rect()
-            self.rect.x = self.x
-            self.rect.y = self.y
-            self.proyectil_x = self.rect.centerx
-            self.proyectil_y = self.rect.top
-            self.proyectil = Proyectil(self.proyectil_x, self.proyectil_y, self.plantilla_roca)
-    
-    def animacion(self):
-        if self.direccion == '2':
-            self.image = self.animaciones_abajo[0]
-            self.bucle_animacion += 0.01
-            if self.bucle_animacion > 1:
-                self.image = self.animaciones_abajo[1]
-                if self.bucle_animacion > 1.1:
-                    self.bucle_animacion = 0
-        
-        if self.direccion == '4':
-            self.image = self.animaciones_izquierda[0]
-            self.bucle_animacion += 0.01
-            if self.bucle_animacion > 1:
-                self.image = self.animaciones_izquierda[1]
-                if self.bucle_animacion > 1.1:
-                    self.bucle_animacion = 0
-        
-        if self.direccion == '6':
-            self.image = self.animaciones_derecha[0]
-            self.bucle_animacion += 0.01
-            if self.bucle_animacion > 1:
-                self.image = self.animaciones_derecha[1]
-                if self.bucle_animacion > 1.1:
-                    self.bucle_animacion = 0
-        
-        if self.direccion == '8':
-            self.image = self.animaciones_arriba[0]
-            self.bucle_animacion += 0.01
-            if self.bucle_animacion > 1:
-                self.image = self.animaciones_arriba[1]
-                if self.bucle_animacion > 1.1:
-                    self.bucle_animacion = 0
-                    
-    def crear_roca(self):
-        if self.direccion == '2':
-            if self.bucle_animacion > 1 and not self.arrojando:
-                self.arrojando = True
-            
-            if self.arrojando:
-                self.proyectil.rect.y += VELOCIDAD_DISPARO
-                self.cont += 1
-                if self.cont == 50:
-                    self.proyectil = Proyectil(self.proyectil_x, self.proyectil_y, self.plantilla_roca)
-                    self.proyectil.rect.y = self.proyectil_y
-                    self.cont = 0
-                    self.arrojando = False
-        
-        if self.direccion == '4':
-            if self.bucle_animacion > 1 and not self.arrojando:
-                self.arrojando = True
-            
-            if self.arrojando:
-                self.proyectil.rect.x -= VELOCIDAD_DISPARO
-                self.cont += 1
-                if self.cont == 50:
-                    self.proyectil = Proyectil(self.proyectil_x, self.proyectil_y, self.plantilla_roca)
-                    self.proyectil.rect.x = self.proyectil_x
-                    self.cont = 0
-                    self.arrojando = False
-        
-        if self.direccion == '8':
-            if self.bucle_animacion > 1 and not self.arrojando:
-                self.arrojando = True
-            
-            if self.arrojando:
-                self.proyectil.rect.y -= VELOCIDAD_DISPARO
-                self.cont += 1
-                if self.cont == 50:
-                    self.proyectil = Proyectil(self.proyectil_x, self.proyectil_y, self.plantilla_roca)
-                    self.proyectil.rect.y = self.proyectil_y
-                    self.cont = 0
-                    self.arrojando = False
-        
-        if self.direccion == '6':
-            if self.bucle_animacion > 1 and not self.arrojando:
-                self.arrojando = True
-            
-            if self.arrojando:
-                self.proyectil.rect.x += VELOCIDAD_DISPARO
-                self.cont += 1
-                if self.cont == 50:
-                    self.proyectil = Proyectil(self.proyectil_x, self.proyectil_y, self.plantilla_roca)
-                    self.proyectil.rect.x = self.proyectil_x
-                    self.cont = 0
-                    self.arrojando = False
-    def update(self):
-        self.animacion()
-        self.crear_roca()
-
+                
 class Proyectil (pygame.sprite.Sprite):
     def __init__ (self, x, y, plantilla):
         super().__init__()
@@ -603,9 +595,16 @@ class Proyectil (pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
-class Terreno(cuadro):
+
+
+class Terreno(pygame.sprite.Sprite):
     def __init__(self, x, y, plantilla, plantilla_x, plantilla_y):
-        super().__init__(x, y)
+        super().__init__()
+        
+        self.x = x * TAMANIO_MOSAICO
+        self.y = y * TAMANIO_MOSAICO
+        self.ancho = TAMANIO_MOSAICO 
+        self.alto = TAMANIO_MOSAICO
         
         self.plantilla_terreno = plantilla
         self.image = self.plantilla_terreno.get_plantilla(plantilla_x, plantilla_y, self.ancho, self.alto)

@@ -18,7 +18,7 @@ class BaseDeDatos(metaclass=BaseDeDatosMeta):
             host = 'localhost',
             user = 'postgres',
             password = 'perrito',
-            database = 'RPG_POO'
+            database = 'RPG'
     )#self.conexion = psycopg2.connect(host="localhost", port="5432", database="juego", user="postgres", password="postgres")
             print('Conexion exitosa')
         except (Exception, psycopg2.DatabaseError) as error:
