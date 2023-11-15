@@ -5,16 +5,13 @@ from boton import Boton
 import math
 from mapa import *
 
-
 class Juego:
-    
     _instance = None
-
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(Juego, cls).__new__(cls)
         return cls._instance
-
+    
     def __init__(self):
         pygame.display.set_caption("Adventure Time")
         self.screen = pygame.display.set_mode((PANTALLA_ANCHO, PANTALLA_ALTO))
@@ -88,13 +85,13 @@ class Juego:
     def cargar_elementos(self):
         for i, fila in enumerate(MAPA):
             for j, columna in enumerate(fila):
-                piso = Piso(j,i,self.plantilla_terreno)
+                piso = Terreno(j,i,self.plantilla_terreno,65,352)
                 self.pisos.append(piso)
                 if columna == 'A':
-                    arbol = Arbol(j,i,self.plantilla_arboles)
+                    arbol = Terreno(j,i,self.plantilla_arboles,102, 49)
                     self.arboles.append(arbol)
                 if columna == 'W':
-                    agua = Agua(j,i,self.plantilla_terreno)
+                    agua = Terreno(j,i,self.plantilla_terreno,900, 160)
                     self.agua.append(agua)
                 if columna == '2' or columna == '4' or columna == '6' or columna == '8':
                     enemigo = Enemigo(j,i,self.plantilla_enemigo, self.plantilla_terreno, columna)
@@ -104,7 +101,7 @@ class Juego:
         self.cargar_elementos()
         for enemigo in self.enemigo:
             enemigo.carga_datos()
-        self.jugador = Jugador(1, 1, self.plantilla_jugador, self.plantilla_corazones, self.plantilla_ataque, self.arboles, self.agua, self.enemigo, VIDA_INICIAL,0)
+        self.jugador = Jugador(1, 1, self.plantilla_jugador, self.plantilla_corazones, self.plantilla_ataque, self.arboles, self.agua, self.enemigo, VIDA_INICIAL,"abajo")
         self.battle_theme.play(-1)
 
     def vaciar(self):
@@ -168,14 +165,18 @@ class Camera:
         y = min(0, y)
         self.camera = pygame.Rect(x, y, self.camera.width, self.camera.height)
 
-class Personaje(pygame.sprite.Sprite):
-    def __init__(self, x, y, plantilla,direccion):
+class Cuadro(pygame.sprite.Sprite):
+    def __init__(self, x, y):
         super().__init__()
-
         self.x = x * TAMANIO_MOSAICO
         self.y = y * TAMANIO_MOSAICO
         self.ancho = TAMANIO_MOSAICO 
         self.alto = TAMANIO_MOSAICO
+        
+        
+class Personaje(Cuadro):
+    def __init__(self, x, y, plantilla,direccion):
+        super().__init__(x,y)
         
         self.plantilla_personaje = plantilla
         self.image = self.plantilla_personaje.get_plantilla(3, 2, self.ancho, self.alto)
@@ -203,20 +204,19 @@ class Personaje(pygame.sprite.Sprite):
         self.animaciones_derecha = [self.plantilla_personaje.get_plantilla(3, 66, self.ancho, self.alto),
                             self.plantilla_personaje.get_plantilla(35, 66, self.ancho, self.alto),
                             self.plantilla_personaje.get_plantilla(68, 66, self.ancho, self.alto)]
-
-
 class Jugador(Personaje):
     def __init__(self, x, y, plantilla, plantilla_corazones, plantilla_ataque, arboles, agua, enemigo, vida,direccion):
-        super().__init__(x, y, plantilla,direccion)
+        super().__init__(x,y,plantilla,direccion)
         self.vida = vida
         self.plantilla_corazones = plantilla_corazones
         self.image_corazones = self.plantilla_corazones.get_plantilla(15,4,101,31)
         self.plantilla_ataque = plantilla_ataque
         
         self.proyectiles_colisionados = set()
+        
         self.x_cambio = 0
         self.y_cambio = 0
-    
+        
         self.enemigo = enemigo
         self.arboles = arboles
         self.agua = agua
@@ -226,7 +226,7 @@ class Jugador(Personaje):
         self.termina_juego = False
     
     def game_over(self):
-        if self.vida < 0 or not self.enemigo:
+        if self.vida < 1 or not self.enemigo:
             self.termina_juego = True
             
     def get_vida(self):
@@ -302,8 +302,8 @@ class Jugador(Personaje):
                     self.ataque = Ataque(self.rect.x - TAMANIO_MOSAICO, self.rect.y, self.plantilla_ataque)
                 if self.direccion == "derecha":
                     self.ataque = Ataque(self.rect.x + TAMANIO_MOSAICO, self.rect.y, self.plantilla_ataque)
-    
-    def colision_enemigo(self):
+    #clase colision que adentro accione depende que entra
+    def colision_enemigo(self) :
         for enemigo in self.enemigo:
             if self.rect.colliderect(enemigo.rect):
                 return True
@@ -333,7 +333,7 @@ class Jugador(Personaje):
                                 self.rect.y = arbol.rect.top - self.rect.height
                             if self.y_cambio < 0:
                                 self.rect.y = arbol.rect.bottom
-                                
+    
     def animacion(self):
         if self.direccion == "abajo":
             if self.y_cambio == 0: #Si se queda parado
@@ -371,12 +371,80 @@ class Jugador(Personaje):
                 if self.bucle_animacion >= 3:
                     self.bucle_animacion = 1
 
+class Ataque(pygame.sprite.Sprite):
+    def __init__(self, x, y, plantilla):
+        super().__init__()
+        
+        self.x = x# * TAMANIO_MOSAICO
+        self.y = y# * TAMANIO_MOSAICO
+        self.ancho = TAMANIO_MOSAICO
+        self.alto = TAMANIO_MOSAICO
+        
+        self.plantilla_ataque = plantilla
+        self.image = self.plantilla_ataque.get_plantilla(0, 64, self.ancho, self.alto)
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+        
+        self.bucle_animacion = 0
+        
+        self.animaciones_derecha = [self.plantilla_ataque.get_plantilla(0, 64, self.ancho, self.alto),
+                        self.plantilla_ataque.get_plantilla(32, 64, self.ancho, self.alto),
+                        self.plantilla_ataque.get_plantilla(64, 64, self.ancho, self.alto),
+                        self.plantilla_ataque.get_plantilla(96, 64, self.ancho, self.alto),
+                        self.plantilla_ataque.get_plantilla(128, 64, self.ancho, self.alto)]
 
+        self.animaciones_abajo = [self.plantilla_ataque.get_plantilla(0, 32, self.ancho, self.alto),
+                        self.plantilla_ataque.get_plantilla(32, 32, self.ancho, self.alto),
+                        self.plantilla_ataque.get_plantilla(64, 32, self.ancho, self.alto),
+                        self.plantilla_ataque.get_plantilla(96, 32, self.ancho, self.alto),
+                        self.plantilla_ataque.get_plantilla(128, 32, self.ancho, self.alto)]
+
+        self.animaciones_izquierda = [self.plantilla_ataque.get_plantilla(0, 96, self.ancho, self.alto),
+                        self.plantilla_ataque.get_plantilla(32, 96, self.ancho, self.alto),
+                        self.plantilla_ataque.get_plantilla(64, 96, self.ancho, self.alto),
+                        self.plantilla_ataque.get_plantilla(96, 96, self.ancho, self.alto),
+                        self.plantilla_ataque.get_plantilla(128, 96, self.ancho, self.alto)]
+
+        self.animaciones_arriba = [self.plantilla_ataque.get_plantilla(0, 0, self.ancho, self.alto),
+                        self.plantilla_ataque.get_plantilla(32, 0, self.ancho, self.alto),
+                        self.plantilla_ataque.get_plantilla(64, 0, self.ancho, self.alto),
+                        self.plantilla_ataque.get_plantilla(96, 0, self.ancho, self.alto),
+                        self.plantilla_ataque.get_plantilla(128, 0, self.ancho, self.alto)]
+    
+    def animacion(self, direccion):
+        if direccion == 'arriba':
+            self.image = self.animaciones_arriba[math.floor(self.bucle_animacion)]
+            self.bucle_animacion += 0.5
+            if self.bucle_animacion >= 5:
+                self.image = self.animaciones_arriba[0]
+                self.bucle_animacion = 0
+        
+        if direccion == 'abajo':
+            self.image = self.animaciones_abajo[math.floor(self.bucle_animacion)]
+            self.bucle_animacion += 0.5
+            if self.bucle_animacion >= 5:
+                self.image = self.animaciones_abajo[0]
+                self.bucle_animacion = 0
+        
+        if direccion == 'izquierda':
+            self.image = self.animaciones_izquierda[math.floor(self.bucle_animacion)]
+            self.bucle_animacion += 0.5
+            if self.bucle_animacion >= 5:
+                self.image = self.animaciones_izquierda[0]
+                self.bucle_animacion = 0
+        
+        if direccion == 'derecha':
+            self.image = self.animaciones_derecha[math.floor(self.bucle_animacion)]
+            self.bucle_animacion += 0.5
+            if self.bucle_animacion >= 5:
+                self.image = self.animaciones_derecha[0]
+                self.bucle_animacion = 0
 
 class Enemigo(Personaje):
-    def __init__(self, x, y, plantilla, plantilla_roca,direccion):
-        super().__init__(x, y, plantilla,direccion)
-        
+    def __init__(self, x, y, plantilla, plantilla_roca, direccion):
+        super().__init__(x,y,plantilla,direccion)
+                
         self.plantilla_roca = plantilla_roca
         self.proyectil = None
         self.proyectil_x = None
@@ -384,8 +452,6 @@ class Enemigo(Personaje):
         self.arrojando = False
         self.cont = 0
         
-
-    
     def carga_datos(self):
         if self.direccion == '2':
             self.image = self.plantilla_personaje.get_plantilla(3, 2, self.ancho, self.alto)
@@ -425,7 +491,7 @@ class Enemigo(Personaje):
     
     def animacion(self):
         if self.direccion == '2':
-            self.image = self.animaciones_bajar[0]
+            #self.image = self.animaciones_bajar[0]
             self.bucle_animacion += 0.01
             if self.bucle_animacion > 1:
                 self.image = self.animaciones_bajar[1]
@@ -433,7 +499,7 @@ class Enemigo(Personaje):
                     self.bucle_animacion = 0
         
         if self.direccion == '4':
-            self.image = self.animaciones_izquierda[0]
+            #self.image = self.animaciones_izquierda[0]
             self.bucle_animacion += 0.01
             if self.bucle_animacion > 1:
                 self.image = self.animaciones_izquierda[1]
@@ -508,82 +574,10 @@ class Enemigo(Personaje):
                     self.proyectil.rect.x = self.proyectil_x
                     self.cont = 0
                     self.arrojando = False
-                    
     def update(self):
         self.animacion()
         self.crear_roca()
 
-
-class Ataque(pygame.sprite.Sprite):
-    def __init__(self, x, y, plantilla):
-        super().__init__()
-        
-        self.x = x# * TAMANIO_MOSAICO
-        self.y = y# * TAMANIO_MOSAICO
-        self.ancho = TAMANIO_MOSAICO
-        self.alto = TAMANIO_MOSAICO
-        
-        self.plantilla_ataque = plantilla
-        self.image = self.plantilla_ataque.get_plantilla(0, 64, self.ancho, self.alto)
-        self.rect = self.image.get_rect()
-        self.rect.x = self.x
-        self.rect.y = self.y
-        
-        self.bucle_animacion = 0
-        
-        self.animaciones_derecha = [self.plantilla_ataque.get_plantilla(0, 64, self.ancho, self.alto),
-                        self.plantilla_ataque.get_plantilla(32, 64, self.ancho, self.alto),
-                        self.plantilla_ataque.get_plantilla(64, 64, self.ancho, self.alto),
-                        self.plantilla_ataque.get_plantilla(96, 64, self.ancho, self.alto),
-                        self.plantilla_ataque.get_plantilla(128, 64, self.ancho, self.alto)]
-
-        self.animaciones_abajo = [self.plantilla_ataque.get_plantilla(0, 32, self.ancho, self.alto),
-                        self.plantilla_ataque.get_plantilla(32, 32, self.ancho, self.alto),
-                        self.plantilla_ataque.get_plantilla(64, 32, self.ancho, self.alto),
-                        self.plantilla_ataque.get_plantilla(96, 32, self.ancho, self.alto),
-                        self.plantilla_ataque.get_plantilla(128, 32, self.ancho, self.alto)]
-
-        self.animaciones_izquierda = [self.plantilla_ataque.get_plantilla(0, 96, self.ancho, self.alto),
-                        self.plantilla_ataque.get_plantilla(32, 96, self.ancho, self.alto),
-                        self.plantilla_ataque.get_plantilla(64, 96, self.ancho, self.alto),
-                        self.plantilla_ataque.get_plantilla(96, 96, self.ancho, self.alto),
-                        self.plantilla_ataque.get_plantilla(128, 96, self.ancho, self.alto)]
-
-        self.animaciones_arriba = [self.plantilla_ataque.get_plantilla(0, 0, self.ancho, self.alto),
-                        self.plantilla_ataque.get_plantilla(32, 0, self.ancho, self.alto),
-                        self.plantilla_ataque.get_plantilla(64, 0, self.ancho, self.alto),
-                        self.plantilla_ataque.get_plantilla(96, 0, self.ancho, self.alto),
-                        self.plantilla_ataque.get_plantilla(128, 0, self.ancho, self.alto)]
-    
-    def animacion(self, direccion):
-        if direccion == 'arriba':
-            self.image = self.animaciones_arriba[math.floor(self.bucle_animacion)]
-            self.bucle_animacion += 0.5
-            if self.bucle_animacion >= 5:
-                self.image = self.animaciones_arriba[0]
-                self.bucle_animacion = 0
-        
-        if direccion == 'abajo':
-            self.image = self.animaciones_abajo[math.floor(self.bucle_animacion)]
-            self.bucle_animacion += 0.5
-            if self.bucle_animacion >= 5:
-                self.image = self.animaciones_abajo[0]
-                self.bucle_animacion = 0
-        
-        if direccion == 'izquierda':
-            self.image = self.animaciones_izquierda[math.floor(self.bucle_animacion)]
-            self.bucle_animacion += 0.5
-            if self.bucle_animacion >= 5:
-                self.image = self.animaciones_izquierda[0]
-                self.bucle_animacion = 0
-        
-        if direccion == 'derecha':
-            self.image = self.animaciones_derecha[math.floor(self.bucle_animacion)]
-            self.bucle_animacion += 0.5
-            if self.bucle_animacion >= 5:
-                self.image = self.animaciones_derecha[0]
-                self.bucle_animacion = 0
-                
 class Proyectil (pygame.sprite.Sprite):
     def __init__ (self, x, y, plantilla):
         super().__init__()
@@ -595,16 +589,9 @@ class Proyectil (pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
-
-
-class Terreno(pygame.sprite.Sprite):
+class Terreno(Cuadro):
     def __init__(self, x, y, plantilla, plantilla_x, plantilla_y):
-        super().__init__()
-        
-        self.x = x * TAMANIO_MOSAICO
-        self.y = y * TAMANIO_MOSAICO
-        self.ancho = TAMANIO_MOSAICO 
-        self.alto = TAMANIO_MOSAICO
+        super().__init__(x, y)
         
         self.plantilla_terreno = plantilla
         self.image = self.plantilla_terreno.get_plantilla(plantilla_x, plantilla_y, self.ancho, self.alto)
@@ -612,14 +599,3 @@ class Terreno(pygame.sprite.Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
 
-class Arbol(Terreno):
-    def __init__(self, x, y, plantilla):
-        super().__init__(x, y, plantilla, 102, 49)
-
-class Piso(Terreno):
-    def __init__(self, x, y, plantilla):
-        super().__init__(x, y, plantilla, 65,352)
-
-class Agua(Terreno):
-    def __init__(self, x, y, plantilla):
-        super().__init__(x, y, plantilla, 900, 160)
