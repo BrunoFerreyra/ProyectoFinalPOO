@@ -3,7 +3,7 @@ from juego import Juego
 from intro import Intro
 from game_over import Game_Over
 
-
+from constantesDAO import *
 pygame.init()
 
 def main():
